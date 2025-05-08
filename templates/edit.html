@@ -1,0 +1,100 @@
+<!-- Объявление типа документа HTML5 -->
+<!DOCTYPE html>
+<!-- Язык документа — русский -->
+<html lang="ru">
+<head>
+    <!-- Установка кодировки UTF-8 -->
+    <meta charset="UTF-8">
+    <!-- Заголовок страницы -->
+    <title>Редактирование услуги</title>
+    <!-- Настройка адаптивности для мобильных устройств -->
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- Подключение Bootstrap 5 через CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+
+<!-- Основное тело документа -->
+<body class="bg-light">
+    <!-- Светлый фон страницы -->
+    <div class="container py-5">
+        <!-- Контейнер Bootstrap с отступами -->
+        <h2 class="mb-4">Редактировать услугу</h2> <!-- Заголовок страницы -->
+        <!-- Форма редактирования услуги -->
+        <form id="edit-form">
+            <!-- Поле ввода ID услуги (по которому будет происходить редактирование) -->
+            <div class="mb-3">
+                <label for="service-id" class="form-label">ID услуги</label>
+                <input type="number" class="form-control" id="service-id" required>
+            </div>
+
+            <!-- Поле ввода нового названия услуги -->
+            <div class="mb-3">
+                <label for="service-name" class="form-label">Название</label>
+                <input type="text" class="form-control" id="service-name" required>
+            </div>
+
+            <!-- Поле ввода нового описания услуги -->
+            <div class="mb-3">
+                <label for="service-description" class="form-label">Описание</label>
+                <textarea class="form-control" id="service-description" rows="3" required></textarea>
+            </div>
+
+            <!-- Поле ввода новой цены услуги -->
+            <div class="mb-3">
+                <label for="service-price" class="form-label">Цена (₽)</label>
+                <input type="number" class="form-control" id="service-price" required>
+            </div>
+
+            <!-- Поле ввода ссылки на изображение -->
+            <div class="mb-3">
+                <label for="service-image" class="form-label">Ссылка на изображение</label>
+                <input type="url" class="form-control" id="service-image">
+            </div>
+
+            <!-- Кнопка отправки формы -->
+            <button type="submit" class="btn btn-primary">Сохранить</button>
+        </form>
+
+        <!-- Контейнер для вывода результата (успех/ошибка) -->
+        <div id="result" class="mt-4"></div>
+    </div>
+
+    <!-- Встроенный JavaScript -->
+    <script>
+        // Получаем ссылку на форму и контейнер для вывода результата
+        const form = document.getElementById("edit-form");
+        const result = document.getElementById("result");
+
+        // Обработчик отправки формы
+        form.addEventListener("submit", async (e) => {
+            e.preventDefault(); // Отменяем стандартное поведение формы (перезагрузку страницы)
+
+            // Получаем ID и данные из полей формы
+            const id = document.getElementById("service-id").value;
+            const data = {
+                name: document.getElementById("service-name").value,
+                description: document.getElementById("service-description").value,
+                price: parseInt(document.getElementById("service-price").value),
+                image_url: document.getElementById("service-image").value
+            };
+
+            // Отправляем PUT-запрос на сервер для обновления услуги
+            const res = await fetch(`http://localhost:5000/api/services/${id}`, {
+                method: "PUT", // Метод запроса — PUT (обновление)
+                headers: { "Content-Type": "application/json" }, // Заголовок, указывающий на формат данных
+                body: JSON.stringify(data) // Преобразуем данные в JSON-строку
+            });
+
+            // Обработка ответа от сервера
+            if (res.ok) {
+                const updated = await res.json(); // Получаем обновлённые данные услуги
+                // Показываем сообщение об успешном обновлении
+                result.innerHTML = `<div class="alert alert-success">Услуга обновлена: <strong>${updated.name}</strong></div>`;
+            } else {
+                // В случае ошибки — показываем сообщение об ошибке
+                result.innerHTML = `<div class="alert alert-danger">Ошибка при обновлении</div>`;
+            }
+        });
+    </script>
+</body>
+</html>
